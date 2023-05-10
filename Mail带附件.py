@@ -24,7 +24,7 @@ print(host_server)
 # sender_mail为发件人的邮箱
 sender_mail = config.get(section="Mail", option="sender_mail")
 # pwd为邮箱的授权码
-pwd = config.get(section="Mail", option="pwd")  ##
+sender_mail_pass = config.get(section="Mail", option="sender_mail_pass")  ##
 # 发件人的邮箱
 sender_fj_mail = config.get(section="Mail", option="sender_fj_mail")
 # 收件人邮箱
@@ -50,16 +50,17 @@ msg.attach(MIMEText(mail_content, 'html', 'utf-8'))
 
 # 附件路径
 FilePath = config.get(section="Mail", option="FilePath").split(',')  # ['Mail.py','MailMain.py']
+# 多个附件名称
 for filename in FilePath:
-    filefj = MIMEText(open(str(filename), 'rb').read(), 'base64', 'utf-8')
-    filefj.add_header('Content-Type', 'application/octet-stream')
-    filefj.add_header('Content-Disposition', 'attachment; filename="' + filename + '"')
-    msg.attach(filefj)
+    attach = MIMEText(open(str(filename), 'rb').read(), 'base64', 'utf-8')
+    attach.add_header('Content-Type', 'application/octet-stream')
+    attach.add_header('Content-Disposition', 'attachment; filename="' + filename + '"')
+    msg.attach( attach)
 
 server = smtplib.SMTP_SSL(host_server, 465)
 server.set_debuglevel(1)
 server.connect(host_server, 465)
 server.ehlo()  # 若不加这行,在服务器环境会报错SMTPServerDisconnected("Connection unexpectedly closed")
-server.login(sender_mail, pwd)
+server.login(sender_mail, sender_mail_pass)
 server.sendmail(sender_fj_mail, receivers, msg.as_string())
 server.quit()
